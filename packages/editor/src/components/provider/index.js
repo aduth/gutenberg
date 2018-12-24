@@ -1,15 +1,16 @@
 /**
  * External dependencies
  */
-import { flow, map } from 'lodash';
+import { map } from 'lodash';
 
 /**
  * WordPress Dependencies
  */
-import { createElement, Component } from '@wordpress/element';
-import { DropZoneProvider, SlotFillProvider } from '@wordpress/components';
-import { withDispatch } from '@wordpress/data';
+import { compose } from '@wordpress/compose';
+import { Component } from '@wordpress/element';
+import { withDispatch, withSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { BlockEditorProvider } from '@wordpress/block-editor';
 
 /**
  * Internal dependencies
@@ -25,9 +26,8 @@ class EditorProvider extends Component {
 			return;
 		}
 
-		props.updateEditorSettings( props.settings );
 		props.updatePostLock( props.settings.postLock );
-		props.setupEditor( props.post, props.initialEdits );
+		props.setupEditor( props.post, props.initialEdits, props.settings.template );
 
 		if ( props.settings.autosave ) {
 			props.createWarningNotice(
@@ -61,55 +61,45 @@ class EditorProvider extends Component {
 		} );
 	}
 
-	componentDidUpdate( prevProps ) {
-		if ( this.props.settings !== prevProps.settings ) {
-			this.props.updateEditorSettings( this.props.settings );
-		}
-	}
-
 	render() {
-		const {
-			children,
-		} = this.props;
+		const { children, settings, blocks, updateEditorBlocks, isReady } = this.props;
 
-		const providers = [
-			// Slot / Fill provider:
-			//
-			//  - context.getSlot
-			//  - context.registerSlot
-			//  - context.unregisterSlot
-			[
-				SlotFillProvider,
-			],
+		if ( ! isReady ) {
+			return null;
+		}
 
-			// DropZone provider:
-			[
-				DropZoneProvider,
-			],
-		];
-
-		const createEditorElement = flow(
-			providers.map( ( [ Provider, props ] ) => (
-				( arg ) => createElement( Provider, props, arg )
-			) )
+		return (
+			<BlockEditorProvider
+				value={ blocks }
+				onChange={ updateEditorBlocks }
+				settings={ settings }
+			>
+				{ children }
+			</BlockEditorProvider>
 		);
-
-		return createEditorElement( children );
 	}
 }
 
-export default withDispatch( ( dispatch ) => {
-	const {
-		setupEditor,
-		updateEditorSettings,
-		updatePostLock,
-	} = dispatch( 'core/editor' );
-	const { createWarningNotice } = dispatch( 'core/notices' );
+export default compose( [
+	withSelect( ( select ) => {
+		return {
+			isReady: select( 'core/editor' ).isEditorReady(),
+			blocks: select( 'core/editor' ).getEditorBlocks(),
+		};
+	} ),
+	withDispatch( ( dispatch ) => {
+		const {
+			setupEditor,
+			updatePostLock,
+			updateEditorBlocks,
+		} = dispatch( 'core/editor' );
+		const { createWarningNotice } = dispatch( 'core/notices' );
 
-	return {
-		setupEditor,
-		updateEditorSettings,
-		updatePostLock,
-		createWarningNotice,
-	};
-} )( EditorProvider );
+		return {
+			setupEditor,
+			updatePostLock,
+			createWarningNotice,
+			updateEditorBlocks,
+		};
+	} ),
+] )( EditorProvider );
