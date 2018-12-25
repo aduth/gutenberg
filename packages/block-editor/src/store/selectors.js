@@ -51,6 +51,14 @@ const MILLISECONDS_PER_WEEK = 7 * 24 * 3600 * 1000;
 const EMPTY_ARRAY = [];
 
 /**
+ * Shared reference to an empty object for cases where it is important to avoid
+ * returning a new object reference on every invocation.
+ *
+ * @type {Object}
+ */
+const EMPTY_OBJECT = {};
+
+/**
  * Returns a new reference when the inner blocks of a given block client ID
  * change. This is used exclusively as a memoized selector dependant, relying
  * on this selector's shared return value and recursively those of its inner
@@ -141,7 +149,7 @@ export const getBlockAttributes = createSelector(
 	( state, clientId ) => [
 		state.editor.present.blocks.byClientId[ clientId ],
 		state.editor.present.blocks.attributes[ clientId ],
-		get( state, [ 'editor', 'settings', 'meta' ], EMPTY_ARRAY ),
+		getPostMeta( state ),
 	]
 );
 
@@ -288,7 +296,7 @@ export const getBlocksByClientId = createSelector(
 		( clientId ) => getBlock( state, clientId )
 	),
 	( state ) => [
-		get( state, [ 'editor', 'settings', 'meta' ], EMPTY_ARRAY ),
+		getPostMeta( state ),
 		state.editor.present.blocks,
 	]
 );
@@ -606,7 +614,7 @@ export const getMultiSelectedBlocks = createSelector(
 	( state ) => [
 		...getMultiSelectedBlockClientIds.getDependants( state ),
 		state.editor.present.blocks,
-		get( state, [ 'editor', 'settings', 'meta' ], EMPTY_ARRAY ),
+		getPostMeta( state ),
 	]
 );
 
@@ -1362,10 +1370,22 @@ export function hasEditorRedo( state ) {
 	return state.editor.future.length > 0;
 }
 
+/**
+ * Returns the value of a post meta from the editor settings.
+ *
+ * @param {Object} state Global application state.
+ * @param {string} key   Meta Key to retrieve
+ *
+ * @return {*} Meta value
+ */
 function getPostMeta( state, key ) {
-	return get( state, [ 'editor', 'settings', 'meta', key ] );
+	if ( key === undefined ) {
+		return get( state, [ 'settings', '__experimentalMetaSource', 'value' ], EMPTY_OBJECT );
+	}
+
+	return get( state, [ 'settings', '__experimentalMetaSource', 'value', key ] );
 }
 
 function getReusableBlocks( state ) {
-	return get( state, [ 'editor', 'settings', 'reusableBlocks' ], EMPTY_ARRAY );
+	return get( state, [ 'settings', 'reusableBlocks' ], EMPTY_ARRAY );
 }

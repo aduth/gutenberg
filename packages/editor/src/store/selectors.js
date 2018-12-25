@@ -38,6 +38,7 @@ export const INSERTER_UTILITY_MEDIUM = 2;
 export const INSERTER_UTILITY_LOW = 1;
 export const INSERTER_UTILITY_NONE = 0;
 const ONE_MINUTE_IN_MS = 60 * 1000;
+const EMPTY_OBJECT = [];
 
 /**
  * Returns true if the currently edited post is yet to be saved, or false if
@@ -231,6 +232,34 @@ export function getCurrentPostAttribute( state, attributeName ) {
 
 /**
  * Returns a single attribute of the post being edited, preferring the unsaved
+ * edit if one exists, but mergiging with the attribute value for the last known
+ * saved state of the post (this is needed for some nested attributes like meta).
+ *
+ * @param {Object} state         Global application state.
+ * @param {string} attributeName Post attribute name.
+ *
+ * @return {*} Post attribute value.
+ */
+const getNestedEditedPostProperty = createSelector(
+	( state, attributeName ) => {
+		const edits = getPostEdits( state );
+		if ( ! edits.hasOwnProperty( attributeName ) ) {
+			return getCurrentPostAttribute( state, attributeName );
+		}
+
+		return {
+			...getCurrentPostAttribute( state, attributeName ),
+			...edits[ attributeName ],
+		};
+	},
+	( state, attributeName ) => [
+		get( state.editor.edits, [ attributeName ], EMPTY_OBJECT ),
+		get( state.currentPost, [ attributeName ], EMPTY_OBJECT ),
+	]
+);
+
+/**
+ * Returns a single attribute of the post being edited, preferring the unsaved
  * edit if one exists, but falling back to the attribute for the last known
  * saved state of the post.
  *
@@ -255,13 +284,7 @@ export function getEditedPostAttribute( state, attributeName ) {
 	// Merge properties are objects which contain only the patch edit in state,
 	// and thus must be merged with the current post attribute.
 	if ( EDIT_MERGE_PROPERTIES.has( attributeName ) ) {
-		// [TODO]: Since this will return a new reference on each invocation,
-		// consider caching in a way which would not impact non-merged property
-		// derivation. Alternatively, introduce a new selector for meta lookup.
-		return {
-			...getCurrentPostAttribute( state, attributeName ),
-			...edits[ attributeName ],
-		};
+		return getNestedEditedPostProperty( state, attributeName );
 	}
 
 	return edits[ attributeName ];

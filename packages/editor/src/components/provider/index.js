@@ -17,9 +17,32 @@ import { BlockEditorProvider } from '@wordpress/block-editor';
  */
 import transformStyles from '../../editor-styles';
 
+/**
+ * Compute the Editor Provider's state object from props.
+ * @param {Object} props Component props.
+ *
+ * @return {Object} Component state.
+ */
+function computeProviderStateFromProps( props ) {
+	return {
+		settings: props.settings,
+		meta: props.meta,
+		onMetaChange: props.onMetaChange,
+		editorSettings: {
+			...props.settings,
+			__experimentalMetaSource: {
+				value: props.meta,
+				onChange: props.onMetaChange,
+			},
+		},
+	};
+}
+
 class EditorProvider extends Component {
 	constructor( props ) {
 		super( ...arguments );
+
+		this.state = computeProviderStateFromProps( props );
 
 		// Assume that we don't need to initialize in the case of an error recovery.
 		if ( props.recovery ) {
@@ -61,8 +84,26 @@ class EditorProvider extends Component {
 		} );
 	}
 
+	static getDerivedStateFromProps( props, state ) {
+		if (
+			props.settings === state.settings &&
+			props.meta === state.meta &&
+			props.onMetaChange === state.onMetaChange
+		) {
+			return null;
+		}
+
+		return computeProviderStateFromProps( props );
+	}
+
 	render() {
-		const { children, settings, blocks, updateEditorBlocks, isReady } = this.props;
+		const {
+			children,
+			blocks,
+			updateEditorBlocks,
+			isReady,
+		} = this.props;
+		const { editorSettings } = this.state;
 
 		if ( ! isReady ) {
 			return null;
@@ -72,7 +113,7 @@ class EditorProvider extends Component {
 			<BlockEditorProvider
 				value={ blocks }
 				onChange={ updateEditorBlocks }
-				settings={ settings }
+				settings={ editorSettings }
 			>
 				{ children }
 			</BlockEditorProvider>
@@ -85,6 +126,7 @@ export default compose( [
 		return {
 			isReady: select( 'core/editor' ).isEditorReady(),
 			blocks: select( 'core/editor' ).getEditorBlocks(),
+			meta: select( 'core/editor' ).getEditedPostAttribute( 'meta' ),
 		};
 	} ),
 	withDispatch( ( dispatch ) => {
@@ -92,6 +134,7 @@ export default compose( [
 			setupEditor,
 			updatePostLock,
 			updateEditorBlocks,
+			editPost,
 		} = dispatch( 'core/editor' );
 		const { createWarningNotice } = dispatch( 'core/notices' );
 
@@ -100,6 +143,9 @@ export default compose( [
 			updatePostLock,
 			createWarningNotice,
 			updateEditorBlocks,
+			onMetaChange( meta ) {
+				editPost( { meta } );
+			},
 		};
 	} ),
 ] )( EditorProvider );
