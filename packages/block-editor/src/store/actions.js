@@ -498,3 +498,20 @@ export function undo() {
 export function createUndoLevel() {
 	return { type: 'CREATE_UNDO_LEVEL' };
 }
+
+/**
+ * Returns an action object used in signalling that a temporary reusable blocks have been saved
+ * in order to switch its temporary id with the real id.
+ *
+ * @param {string} id        Reusable block's id.
+ * @param {string} updatedId Updated block's id.
+ *
+ * @return {Object} Action object.
+ */
+export function __unstableSaveResuableBlock( id, updatedId ) {
+	return {
+		type: 'SAVE_REUSABLE_BLOCK_SUCCESS',
+		id,
+		updatedId,
+	};
+}

@@ -28,12 +28,14 @@ function computeProviderStateFromProps( props ) {
 		settings: props.settings,
 		meta: props.meta,
 		onMetaChange: props.onMetaChange,
+		reusableBlocks: props.reusableBlocks,
 		editorSettings: {
 			...props.settings,
 			__experimentalMetaSource: {
 				value: props.meta,
 				onChange: props.onMetaChange,
 			},
+			__experimentalReusableBlocks: props.reusableBlocks,
 		},
 	};
 }
@@ -88,7 +90,8 @@ class EditorProvider extends Component {
 		if (
 			props.settings === state.settings &&
 			props.meta === state.meta &&
-			props.onMetaChange === state.onMetaChange
+			props.onMetaChange === state.onMetaChange &&
+			props.reusableBlocks === state.reusableBlocks
 		) {
 			return null;
 		}
@@ -123,10 +126,17 @@ class EditorProvider extends Component {
 
 export default compose( [
 	withSelect( ( select ) => {
+		const {
+			isEditorReady,
+			getEditorBlocks,
+			getEditedPostAttribute,
+			__experimentalGetReusableBlocks,
+		} = select( 'core/editor' );
 		return {
-			isReady: select( 'core/editor' ).isEditorReady(),
-			blocks: select( 'core/editor' ).getEditorBlocks(),
-			meta: select( 'core/editor' ).getEditedPostAttribute( 'meta' ),
+			isReady: isEditorReady(),
+			blocks: getEditorBlocks(),
+			meta: getEditedPostAttribute( 'meta' ),
+			reusableBlocks: __experimentalGetReusableBlocks(),
 		};
 	} ),
 	withDispatch( ( dispatch ) => {

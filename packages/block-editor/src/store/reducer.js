@@ -122,6 +122,28 @@ function getFlattenedBlockAttributes( blocks ) {
 }
 
 /**
+ * Given a block order map object, returns *all* of the block client IDs that are
+ * a descendant of the given root client ID.
+ *
+ * Calling this with `rootClientId` set to `''` results in a list of client IDs
+ * that are in the post. That is, it excludes blocks like fetched reusable
+ * blocks which are stored into state but not visible.
+ *
+ * @param {Object}  blocksOrder  Object that maps block client IDs to a list of
+ *                               nested block client IDs.
+ * @param {?string} rootClientId The root client ID to search. Defaults to ''.
+ *
+ * @return {Array} List of descendant client IDs.
+ */
+function getNestedBlockClientIds( blocksOrder, rootClientId = '' ) {
+	return reduce( blocksOrder[ rootClientId ], ( result, clientId ) => [
+		...result,
+		clientId,
+		...getNestedBlockClientIds( blocksOrder, clientId ),
+	], [] );
+}
+
+/**
  * Returns an object against which it is safe to perform mutating operations,
  * given the original object and its current working copy.
  *
@@ -232,6 +254,79 @@ const withInnerBlocksRemoveCascade = ( reducer ) => ( state, action ) => {
 };
 
 /**
+ * Higher-order reducer which targets the combined blocks reducer and handles
+ * the `RESET_BLOCKS` action. When dispatched, this action will replace all
+ * blocks that exist in the post, leaving blocks that exist only in state (e.g.
+ * reusable blocks) alone.
+ *
+ * @param {Function} reducer Original reducer function.
+ *
+ * @return {Function} Enhanced reducer function.
+ */
+const withBlockReset = ( reducer ) => ( state, action ) => {
+	if (
+		state &&
+		( action.type === 'RESET_BLOCKS' || action.type === 'INIT_BLOCKS' )
+	) {
+		const visibleClientIds = getNestedBlockClientIds( state.order );
+		return {
+			...state,
+			byClientId: {
+				...omit( state.byClientId, visibleClientIds ),
+				...getFlattenedBlocksWithoutAttributes( action.blocks ),
+			},
+			attributes: {
+				...omit( state.attributes, visibleClientIds ),
+				...getFlattenedBlockAttributes( action.blocks ),
+			},
+			order: {
+				...omit( state.order, visibleClientIds ),
+				...mapBlockOrder( action.blocks ),
+			},
+		};
+	}
+
+	return reducer( state, action );
+};
+
+/**
+ * Higher-order reducer which targets the combined blocks reducer and handles
+ * the `SAVE_REUSABLE_BLOCK_SUCCESS` action. This action can't be handled by
+ * regular reducers and needs a higher-order reducer since it needs access to
+ * both `byClientId` and `attributes` simultaneously.
+ *
+ * @param {Function} reducer Original reducer function.
+ *
+ * @return {Function} Enhanced reducer function.
+ */
+const withSaveReusableBlock = ( reducer ) => ( state, action ) => {
+	if ( state && action.type === 'SAVE_REUSABLE_BLOCK_SUCCESS' ) {
+		const { id, updatedId } = action;
+
+		// If a temporary reusable block is saved, we swap the temporary id with the final one
+		if ( id === updatedId ) {
+			return state;
+		}
+
+		state = { ...state };
+
+		state.attributes = mapValues( state.attributes, ( attributes, clientId ) => {
+			const { name } = state.byClientId[ clientId ];
+			if ( name === 'core/block' && attributes.ref === id ) {
+				return {
+					...attributes,
+					ref: updatedId,
+				};
+			}
+
+			return attributes;
+		} );
+	}
+
+	return reducer( state, action );
+};
+
+/**
  * Undoable reducer returning the editor post state, including blocks parsed
  * from current HTML markup.
  *
@@ -257,12 +352,13 @@ export const editor = flow( [
 		shouldOverwriteState,
 	} ),
 ] )( {
-	blocks: combineReducers( {
+	blocks: flow(
+		combineReducers,
+		withBlockReset,
+		withSaveReusableBlock,
+	)( {
 		byClientId( state = {}, action ) {
 			switch ( action.type ) {
-				case 'INIT_BLOCKS':
-				case 'RESET_BLOCKS':
-					return getFlattenedBlocksWithoutAttributes( action.blocks );
 				case 'RECEIVE_BLOCKS':
 					return {
 						...state,
@@ -314,10 +410,6 @@ export const editor = flow( [
 
 		attributes( state = {}, action ) {
 			switch ( action.type ) {
-				case 'INIT_BLOCKS':
-				case 'RESET_BLOCKS':
-					return getFlattenedBlockAttributes( action.blocks );
-
 				case 'RECEIVE_BLOCKS':
 					return {
 						...state,
@@ -391,10 +483,6 @@ export const editor = flow( [
 
 		order( state = {}, action ) {
 			switch ( action.type ) {
-				case 'INIT_BLOCKS':
-				case 'RESET_BLOCKS':
-					return mapBlockOrder( action.blocks );
-
 				case 'RECEIVE_BLOCKS':
 					return {
 						...state,

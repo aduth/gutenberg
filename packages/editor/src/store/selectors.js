@@ -814,12 +814,17 @@ export function __experimentalIsFetchingReusableBlock( state, ref ) {
  *
  * @return {Array} An array of all reusable blocks.
  */
-export function __experimentalGetReusableBlocks( state ) {
-	return map(
+export const __experimentalGetReusableBlocks = createSelector(
+	( state ) => {
+		return map(
+			state.reusableBlocks.data,
+			( value, ref ) => __experimentalGetReusableBlock( state, ref )
+		);
+	},
+	( state ) => [
 		state.reusableBlocks.data,
-		( value, ref ) => __experimentalGetReusableBlock( state, ref )
-	);
-}
+	]
+);
 
 /**
  * Returns state object prior to a specified optimist transaction ID, or `null`

@@ -1386,6 +1386,13 @@ function getPostMeta( state, key ) {
 	return get( state, [ 'settings', '__experimentalMetaSource', 'value', key ] );
 }
 
+/**
+ * Returns the available reusable blocks
+ *
+ * @param {Object} state Global application state.
+ *
+ * @return {Array} Reusable blocks
+ */
 function getReusableBlocks( state ) {
-	return get( state, [ 'settings', 'reusableBlocks' ], EMPTY_ARRAY );
+	return get( state, [ 'settings', '__experimentalReusableBlocks' ], EMPTY_ARRAY );
 }
