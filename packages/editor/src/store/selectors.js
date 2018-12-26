@@ -21,6 +21,7 @@ import {
 import { isInTheFuture, getDate } from '@wordpress/date';
 import { removep } from '@wordpress/autop';
 import { addQueryArgs } from '@wordpress/url';
+import { select } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -1063,7 +1064,7 @@ export function isEditorReady( state ) {
  */
 
 const getBlockEditorSelector = ( name ) => ( state, ...args ) => {
-	return window.wp.data.select( 'core/block-editor' )[ name ]( ...args );
+	return select( 'core/block-editor' )[ name ]( ...args );
 };
 
 export const getBlockDependantsCacheBust = getBlockEditorSelector( 'getBlockDependantsCacheBust' );

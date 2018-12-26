@@ -12,7 +12,6 @@ import {
 	keys,
 	isEqual,
 	isEmpty,
-	overSome,
 	get,
 } from 'lodash';
 
@@ -31,22 +30,6 @@ import {
 	EDITOR_SETTINGS_DEFAULTS,
 } from './defaults';
 import { insertAt, moveTo } from './array';
-
-/**
- * Returns a post attribute value, flattening nested rendered content using its
- * raw value in place of its original object form.
- *
- * @param {*} value Original value.
- *
- * @return {*} Raw value.
- */
-export function getPostRawValue( value ) {
-	if ( value && 'object' === typeof value && 'raw' in value ) {
-		return value.raw;
-	}
-
-	return value;
-}
 
 /**
  * Given an array of blocks, returns an object where each key is a nesting
@@ -193,23 +176,6 @@ export function isUpdatingSameBlockAttribute( action, previousAction ) {
 
 /**
  * Returns true if, given the currently dispatching action and the previously
- * dispatched action, the two actions are editing the same post property, or
- * false otherwise.
- *
- * @param {Object} action         Currently dispatching action.
- * @param {Object} previousAction Previously dispatched action.
- *
- * @return {boolean} Whether actions are updating the same post property.
- */
-export function isUpdatingSamePostProperty( action, previousAction ) {
-	return (
-		action.type === 'EDIT_POST' &&
-		hasSameKeys( action.edits, previousAction.edits )
-	);
-}
-
-/**
- * Returns true if, given the currently dispatching action and the previously
  * dispatched action, the two actions are modifying the same property such that
  * undo history should be batched.
  *
@@ -223,10 +189,7 @@ export function shouldOverwriteState( action, previousAction ) {
 		return false;
 	}
 
-	return overSome( [
-		isUpdatingSameBlockAttribute,
-		isUpdatingSamePostProperty,
-	] )( action, previousAction );
+	return isUpdatingSameBlockAttribute( action, previousAction );
 }
 
 /**

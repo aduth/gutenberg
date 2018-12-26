@@ -1031,3 +1031,13 @@ Returns an action object used in signalling that undo history should pop.
 
 Returns an action object used in signalling that undo history record should
 be created.
+
+### __unstableSaveResuableBlock
+
+Returns an action object used in signalling that a temporary reusable blocks have been saved
+in order to switch its temporary id with the real id.
+
+*Parameters*
+
+ * id: Reusable block's id.
+ * updatedId: Updated block's id.

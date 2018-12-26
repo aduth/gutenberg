@@ -4,6 +4,11 @@
 import { castArray } from 'lodash';
 
 /**
+ * WordPress dependencies
+ */
+import { dispatch } from '@wordpress/data';
+
+/**
  * Returns an action object used in signalling that editor has initialized with
  * the specified post object and editor settings.
  *
@@ -326,7 +331,7 @@ export function updateEditorBlocks( blocks ) {
  */
 
 const getBlockEditorAction = ( name ) => ( ...args ) => {
-	window.wp.data.dispatch( 'core/block-editor' )[ name ]( ...args );
+	dispatch( 'core/block-editor' )[ name ]( ...args );
 	return { type: 'DO_NOTHING' };
 };
 
