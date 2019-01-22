@@ -1,12 +1,7 @@
 /**
- * External dependencies
- */
-import { flow } from 'lodash';
-
-/**
  * WordPress Dependencies
  */
-import { createElement, Component } from '@wordpress/element';
+import { Component } from '@wordpress/element';
 import { DropZoneProvider, SlotFillProvider } from '@wordpress/components';
 import { withDispatch, withSelect } from '@wordpress/data';
 import { compose } from '@wordpress/compose';
@@ -38,29 +33,13 @@ class BlockEditorProvider extends Component {
 			children,
 		} = this.props;
 
-		const providers = [
-			// Slot / Fill provider:
-			//
-			//  - context.getSlot
-			//  - context.registerSlot
-			//  - context.unregisterSlot
-			[
-				SlotFillProvider,
-			],
-
-			// DropZone provider:
-			[
-				DropZoneProvider,
-			],
-		];
-
-		const createEditorElement = flow(
-			providers.map( ( [ Provider, props ] ) => (
-				( arg ) => createElement( Provider, props, arg )
-			) )
+		return (
+			<SlotFillProvider>
+				<DropZoneProvider>
+					{ children }
+				</DropZoneProvider>
+			</SlotFillProvider>
 		);
-
-		return createEditorElement( children );
 	}
 }
 
