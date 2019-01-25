@@ -18,7 +18,7 @@ import { getDefaultBlockName, createBlock } from '@wordpress/blocks';
  *
  * @return {Object} Action object.
  */
-export function initBlocks( blocks ) {
+export function __unstableInitBlocks( blocks ) {
 	return {
 		type: 'INIT_BLOCKS',
 		blocks,

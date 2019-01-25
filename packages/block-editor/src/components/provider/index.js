@@ -53,7 +53,7 @@ export default compose( [
 	withDispatch( ( dispatch ) => {
 		const {
 			updateEditorSettings,
-			initBlocks,
+			__unstableInitBlocks: initBlocks,
 		} = dispatch( 'core/block-editor' );
 
 		return {

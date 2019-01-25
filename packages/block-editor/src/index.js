@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-
 import '@wordpress/blocks';
 
 /**
