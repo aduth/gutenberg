@@ -12,7 +12,7 @@ import {
 	registerBlockType,
 	createBlock,
 } from '@wordpress/blocks';
-import { dispatch as dataDispatch, createRegistry } from '@wordpress/data';
+import { createRegistry } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -32,16 +32,6 @@ import applyMiddlewares from '../middlewares';
 import '../../';
 
 describe( 'effects', () => {
-	beforeAll( () => {
-		jest.spyOn( dataDispatch( 'core/notices' ), 'createErrorNotice' );
-		jest.spyOn( dataDispatch( 'core/notices' ), 'createSuccessNotice' );
-	} );
-
-	beforeEach( () => {
-		dataDispatch( 'core/notices' ).createErrorNotice.mockReset();
-		dataDispatch( 'core/notices' ).createSuccessNotice.mockReset();
-	} );
-
 	const defaultBlockSettings = { save: () => 'Saved', category: 'common', title: 'block title' };
 
 	describe( '.MERGE_BLOCKS', () => {

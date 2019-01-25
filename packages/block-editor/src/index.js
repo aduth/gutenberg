@@ -3,7 +3,6 @@
  */
 
 import '@wordpress/blocks';
-import '@wordpress/notices';
 
 /**
  * Internal dependencies
