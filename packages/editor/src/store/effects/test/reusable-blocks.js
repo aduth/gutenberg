@@ -57,15 +57,11 @@ describe( 'reusable blocks effects', () => {
 				ref: { type: 'string' },
 			},
 		} );
-
-		//		jest.spyOn( dataDispatch( 'core/block-editor' ), 'createErrorNotice' );
 	} );
 
 	afterAll( () => {
 		unregisterBlockType( 'core/test-block' );
 		unregisterBlockType( 'core/block' );
-
-		//		dataDispatch( 'core/block-editor' ).createErrorNotice.mockReset();
 	} );
 
 	describe( 'fetchReusableBlocks', () => {
