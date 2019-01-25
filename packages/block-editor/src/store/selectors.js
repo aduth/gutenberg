@@ -30,7 +30,6 @@ import {
 /***
  * Module constants
  */
-export const POST_UPDATE_TRANSACTION_ID = 'post-update';
 export const INSERTER_UTILITY_HIGH = 3;
 export const INSERTER_UTILITY_MEDIUM = 2;
 export const INSERTER_UTILITY_LOW = 1;
