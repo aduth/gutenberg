@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { map } from 'lodash';
+import memize from 'memize';
 
 /**
  * WordPress Dependencies
@@ -16,35 +17,13 @@ import { BlockEditorProvider } from '@wordpress/block-editor';
  * Internal dependencies
  */
 import transformStyles from '../../editor-styles';
-
-/**
- * Compute the Editor Provider's state object from props.
- * @param {Object} props Component props.
- *
- * @return {Object} Component state.
- */
-function computeProviderStateFromProps( props ) {
-	return {
-		settings: props.settings,
-		meta: props.meta,
-		onMetaChange: props.onMetaChange,
-		reusableBlocks: props.reusableBlocks,
-		editorSettings: {
-			...props.settings,
-			__experimentalMetaSource: {
-				value: props.meta,
-				onChange: props.onMetaChange,
-			},
-			__experimentalReusableBlocks: props.reusableBlocks,
-		},
-	};
-}
-
 class EditorProvider extends Component {
 	constructor( props ) {
 		super( ...arguments );
 
-		this.state = computeProviderStateFromProps( props );
+		this.getBlockEditorSettings = memize( this.getBlockEditorSettings, {
+			maxSize: 1,
+		} );
 
 		// Assume that we don't need to initialize in the case of an error recovery.
 		if ( props.recovery ) {
@@ -70,6 +49,17 @@ class EditorProvider extends Component {
 		}
 	}
 
+	getBlockEditorSettings( settings, meta, onMetaChange, reusableBlocks ) {
+		return {
+			...settings,
+			__experimentalMetaSource: {
+				value: meta,
+				onChange: onMetaChange,
+			},
+			__experimentalReusableBlocks: reusableBlocks,
+		};
+	}
+
 	componentDidMount() {
 		if ( ! this.props.settings.styles ) {
 			return;
@@ -86,27 +76,20 @@ class EditorProvider extends Component {
 		} );
 	}
 
-	static getDerivedStateFromProps( props, state ) {
-		if (
-			props.settings === state.settings &&
-			props.meta === state.meta &&
-			props.onMetaChange === state.onMetaChange &&
-			props.reusableBlocks === state.reusableBlocks
-		) {
-			return null;
-		}
-
-		return computeProviderStateFromProps( props );
-	}
-
 	render() {
 		const {
 			children,
 			blocks,
 			updateEditorBlocks,
 			isReady,
+			settings,
+			meta,
+			onMetaChange,
+			reusableBlocks,
 		} = this.props;
-		const { editorSettings } = this.state;
+		const editorSettings = this.getBlockEditorSettings(
+			settings, meta, onMetaChange, reusableBlocks
+		);
 
 		if ( ! isReady ) {
 			return null;
