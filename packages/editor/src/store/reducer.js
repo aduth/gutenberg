@@ -738,6 +738,16 @@ export function previewLink( state = null, action ) {
 	return state;
 }
 
+/**
+ * Reducer returning whether the editor is ready to be rendered.
+ * The editor is considered ready to be rendered once
+ * the post object is loaded properly and the initial blocks parsed.
+ *
+ * @param {boolean} state
+ * @param {Object} action
+ *
+ * @return {boolean} Updated state.
+ */
 export function isReady( state = false, action ) {
 	switch ( action.type ) {
 		case 'SETUP_EDITOR_STATE':
