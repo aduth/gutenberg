@@ -39,7 +39,7 @@ export const INSERTER_UTILITY_MEDIUM = 2;
 export const INSERTER_UTILITY_LOW = 1;
 export const INSERTER_UTILITY_NONE = 0;
 const ONE_MINUTE_IN_MS = 60 * 1000;
-const EMPTY_OBJECT = [];
+const EMPTY_OBJECT = {};
 
 /**
  * Returns true if the currently edited post is yet to be saved, or false if
