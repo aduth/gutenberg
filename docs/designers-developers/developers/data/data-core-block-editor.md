@@ -776,7 +776,7 @@ Whether redo history exists.
 
 ## Actions
 
-### initBlocks
+### __unstableInitBlocks
 
 Returns an action object used in signalling that blocks state should be
 intialized using a specified array of blocks,
@@ -839,6 +839,27 @@ reflects a reverse selection.
  * clientId: Block client ID.
  * initialPosition: Optional initial position. Pass as -1 to
                                  reflect reverse selection.
+
+### startMultiSelect
+
+Returns an action object used in signalling that a block multi-selection has started.
+
+### stopMultiSelect
+
+Returns an action object used in signalling that block multi-selection stopped.
+
+### multiSelect
+
+Returns an action object used in signalling that block multi-selection changed.
+
+*Parameters*
+
+ * start: First block of the multi selection.
+ * end: Last block of the multiselection.
+
+### clearSelectedBlock
+
+Returns an action object used in signalling that the block selection is cleared.
 
 ### toggleSelection
 
@@ -1032,7 +1053,7 @@ Returns an action object used in signalling that undo history should pop.
 Returns an action object used in signalling that undo history record should
 be created.
 
-### __unstableSaveResuableBlock
+### __unstableSaveReusableBlock
 
 Returns an action object used in signalling that a temporary reusable blocks have been saved
 in order to switch its temporary id with the real id.

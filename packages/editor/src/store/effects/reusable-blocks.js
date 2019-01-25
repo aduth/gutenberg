@@ -141,7 +141,7 @@ export const saveReusableBlocks = async ( action, store ) => {
 			id: REUSABLE_BLOCK_NOTICE_ID,
 		} );
 
-		dataDispatch( 'core/block-editor' ).__unstableSaveResuableBlock( id, updatedReusableBlock.id );
+		dataDispatch( 'core/block-editor' ).__unstableSaveReusableBlock( id, updatedReusableBlock.id );
 	} catch ( error ) {
 		dispatch( { type: 'SAVE_REUSABLE_BLOCK_FAILURE', id } );
 		dataDispatch( 'core/notices' ).createErrorNotice( error.message, {

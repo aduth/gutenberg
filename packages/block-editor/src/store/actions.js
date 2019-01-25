@@ -531,7 +531,7 @@ export function createUndoLevel() {
  *
  * @return {Object} Action object.
  */
-export function __unstableSaveResuableBlock( id, updatedId ) {
+export function __unstableSaveReusableBlock( id, updatedId ) {
 	return {
 		type: 'SAVE_REUSABLE_BLOCK_SUCCESS',
 		id,
