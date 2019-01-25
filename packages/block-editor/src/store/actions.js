@@ -111,18 +111,36 @@ export function selectBlock( clientId, initialPosition = null ) {
 	};
 }
 
+/**
+ * Returns an action object used in signalling that a block multi-selection has started.
+ *
+ * @return {Object} Action object.
+ */
 export function startMultiSelect() {
 	return {
 		type: 'START_MULTI_SELECT',
 	};
 }
 
+/**
+ * Returns an action object used in signalling that block multi-selection stopped.
+ *
+ * @return {Object} Action object.
+ */
 export function stopMultiSelect() {
 	return {
 		type: 'STOP_MULTI_SELECT',
 	};
 }
 
+/**
+ * Returns an action object used in signalling that block multi-selection changed.
+ *
+ * @param {string} start First block of the multi selection.
+ * @param {string} end   Last block of the multiselection.
+ *
+ * @return {Object} Action object.
+ */
 export function multiSelect( start, end ) {
 	return {
 		type: 'MULTI_SELECT',
@@ -131,6 +149,11 @@ export function multiSelect( start, end ) {
 	};
 }
 
+/**
+ * Returns an action object used in signalling that the block selection is cleared.
+ *
+ * @return {Object} Action object.
+ */
 export function clearSelectedBlock() {
 	return {
 		type: 'CLEAR_SELECTED_BLOCK',
