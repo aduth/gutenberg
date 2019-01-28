@@ -681,7 +681,7 @@ Return the current block list.
 
 Block list.
 
-### isEditorReady
+### __unstableIsEditorReady
 
 Is the editor ready
 

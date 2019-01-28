@@ -1055,7 +1055,7 @@ export function getEditorBlocks( state ) {
  * @param {Object} state
  * @return {boolean} is Ready.
  */
-export function isEditorReady( state ) {
+export function __unstableIsEditorReady( state ) {
 	return state.isReady;
 }
 

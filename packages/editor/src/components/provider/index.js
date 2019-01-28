@@ -110,7 +110,7 @@ class EditorProvider extends Component {
 export default compose( [
 	withSelect( ( select ) => {
 		const {
-			isEditorReady,
+			__unstableIsEditorReady: isEditorReady,
 			getEditorBlocks,
 			getEditedPostAttribute,
 			__experimentalGetReusableBlocks,
