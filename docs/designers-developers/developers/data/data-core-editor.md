@@ -863,7 +863,7 @@ Returns an action object used to signal that post saving is unlocked.
 
  * lockName: The lock name.
 
-### updateEditorBlocks
+### resetEditorBlocks
 
 Returns an action object used to signal that the blocks have been updated.
 

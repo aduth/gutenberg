@@ -83,7 +83,7 @@ export const editor = flow( [
 		resetTypes: [ 'SETUP_EDITOR_STATE', 'REQUEST_POST_UPDATE_START' ],
 	} )( ( state = { value: [] }, action ) => {
 		switch ( action.type ) {
-			case 'UPDATE_BLOCKS':
+			case 'RESET_BLOCKS':
 				return { value: action.blocks };
 		}
 
@@ -123,7 +123,7 @@ export const editor = flow( [
 					delete result[ key ];
 					return result;
 				}, state );
-			case 'UPDATE_BLOCKS':
+			case 'RESET_BLOCKS':
 				if ( 'content' in state ) {
 					return omit( state, 'content' );
 				}

@@ -11,7 +11,7 @@ import { dispatch as dataDispatch } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import { setupEditorState, updateEditorBlocks } from '../actions';
+import { setupEditorState, resetEditorBlocks } from '../actions';
 import effects from '../effects';
 import { SAVE_POST_NOTICE_ID } from '../effects/posts';
 import '../../';
@@ -238,7 +238,7 @@ describe( 'effects', () => {
 			const result = handler( { post, settings: {} } );
 
 			expect( result ).toEqual( [
-				updateEditorBlocks( [] ),
+				resetEditorBlocks( [] ),
 				setupEditorState( post, [], {} ),
 			] );
 		} );
@@ -277,7 +277,7 @@ describe( 'effects', () => {
 			const result = handler( { post } );
 
 			expect( result ).toEqual( [
-				updateEditorBlocks( [] ),
+				resetEditorBlocks( [] ),
 				setupEditorState( post, [], { title: 'A History of Pork' } ),
 			] );
 		} );

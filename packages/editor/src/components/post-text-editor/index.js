@@ -94,7 +94,7 @@ export default compose( [
 		};
 	} ),
 	withDispatch( ( dispatch ) => {
-		const { editPost, updateEditorBlocks, resetBlocks } = dispatch( 'core/editor' );
+		const { editPost, resetEditorBlocks, resetBlocks } = dispatch( 'core/editor' );
 		return {
 			onChange( content ) {
 				editPost( { content } );
@@ -102,7 +102,7 @@ export default compose( [
 			onPersist( content ) {
 				const blocks = parse( content );
 				resetBlocks( blocks );
-				updateEditorBlocks( blocks );
+				resetEditorBlocks( blocks );
 			},
 		};
 	} ),

@@ -16,7 +16,7 @@ import {
  */
 import {
 	setupEditorState,
-	updateEditorBlocks,
+	resetEditorBlocks,
 } from './actions';
 import {
 	fetchReusableBlocks,
@@ -70,7 +70,7 @@ export default {
 		}
 
 		return [
-			updateEditorBlocks( blocks ),
+			resetEditorBlocks( blocks ),
 			setupEditorState( post ),
 		];
 	},

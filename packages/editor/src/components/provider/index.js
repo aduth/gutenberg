@@ -80,7 +80,7 @@ class EditorProvider extends Component {
 		const {
 			children,
 			blocks,
-			updateEditorBlocks,
+			resetEditorBlocks,
 			isReady,
 			settings,
 			meta,
@@ -98,7 +98,7 @@ class EditorProvider extends Component {
 		return (
 			<BlockEditorProvider
 				value={ blocks }
-				onChange={ updateEditorBlocks }
+				onChange={ resetEditorBlocks }
 				settings={ editorSettings }
 			>
 				{ children }
@@ -126,7 +126,7 @@ export default compose( [
 		const {
 			setupEditor,
 			updatePostLock,
-			updateEditorBlocks,
+			resetEditorBlocks,
 			editPost,
 		} = dispatch( 'core/editor' );
 		const { createWarningNotice } = dispatch( 'core/notices' );
@@ -135,7 +135,7 @@ export default compose( [
 			setupEditor,
 			updatePostLock,
 			createWarningNotice,
-			updateEditorBlocks,
+			resetEditorBlocks,
 			onMetaChange( meta ) {
 				editPost( { meta } );
 			},

@@ -319,9 +319,9 @@ export function unlockPostSaving( lockName ) {
  *
  * @return {Object} Action object
  */
-export function updateEditorBlocks( blocks ) {
+export function resetEditorBlocks( blocks ) {
 	return {
-		type: 'UPDATE_BLOCKS',
+		type: 'RESET_BLOCKS',
 		blocks,
 	};
 }
