@@ -21,7 +21,7 @@ import {
 import { isInTheFuture, getDate } from '@wordpress/date';
 import { removep } from '@wordpress/autop';
 import { addQueryArgs } from '@wordpress/url';
-import { select } from '@wordpress/data';
+import { createRegistrySelector } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -1063,9 +1063,10 @@ export function __unstableIsEditorReady( state ) {
  * Backward compatibility
  */
 
-const getBlockEditorSelector = ( name ) => ( state, ...args ) => {
-	return select( 'core/block-editor' )[ name ]( ...args );
-};
+const getBlockEditorSelector = ( name ) =>
+	createRegistrySelector( ( registry ) => ( state, ...args ) => {
+		return registry.select( 'core/block-editor' )[ name ]( ...args );
+	} );
 
 export const getBlockDependantsCacheBust = getBlockEditorSelector( 'getBlockDependantsCacheBust' );
 export const getBlockName = getBlockEditorSelector( 'getBlockName' );

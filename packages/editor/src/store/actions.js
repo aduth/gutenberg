@@ -4,9 +4,9 @@
 import { castArray } from 'lodash';
 
 /**
- * WordPress dependencies
+ * Internal dependencies
  */
-import { dispatch } from '@wordpress/data';
+import { dispatch } from './controls';
 
 /**
  * Returns an action object used in signalling that editor has initialized with
@@ -330,9 +330,8 @@ export function resetEditorBlocks( blocks ) {
  * Backward compatibility
  */
 
-const getBlockEditorAction = ( name ) => ( ...args ) => {
-	dispatch( 'core/block-editor' )[ name ]( ...args );
-	return { type: 'DO_NOTHING' };
+const getBlockEditorAction = ( name ) => function * ( ...args ) {
+	yield dispatch( 'core/block-editor', name, ...args );
 };
 
 export const resetBlocks = getBlockEditorAction( 'resetBlocks' );

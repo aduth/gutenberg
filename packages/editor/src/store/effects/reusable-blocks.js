@@ -19,23 +19,17 @@ import { __ } from '@wordpress/i18n';
 // TODO: Ideally this would be the only dispatch in scope. This requires either
 // refactoring editor actions to yielded controls, or replacing direct dispatch
 // on the editor store with action creators (e.g. `REMOVE_REUSABLE_BLOCK`).
-import { dispatch as dataDispatch } from '@wordpress/data';
+import { dispatch as dataDispatch, select } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
 import {
 	__experimentalReceiveReusableBlocks as receiveReusableBlocksAction,
-	removeBlocks,
-	replaceBlocks,
-	receiveBlocks,
 	__experimentalSaveReusableBlock as saveReusableBlock,
 } from '../actions';
 import {
 	__experimentalGetReusableBlock as getReusableBlock,
-	getBlock,
-	getBlocks,
-	getBlocksByClientId,
 } from '../selectors';
 import { getPostRawValue } from '../reducer';
 
@@ -122,7 +116,7 @@ export const saveReusableBlocks = async ( action, store ) => {
 	const { dispatch } = store;
 	const state = store.getState();
 	const { clientId, title, isTemporary } = getReusableBlock( state, id );
-	const reusableBlock = getBlock( state, clientId );
+	const reusableBlock = select( 'core/block-editor' ).getBlock( clientId );
 	const content = serialize( reusableBlock.name === 'core/template' ? reusableBlock.innerBlocks : reusableBlock );
 
 	const data = isTemporary ? { title, content, status: 'publish' } : { id, title, content, status: 'publish' };
@@ -174,7 +168,7 @@ export const deleteReusableBlocks = async ( action, store ) => {
 	}
 
 	// Remove any other blocks that reference this reusable block
-	const allBlocks = getBlocks( getState() );
+	const allBlocks = select( 'core/block-editor' ).getBlocks();
 	const associatedBlocks = allBlocks.filter( ( block ) => isReusableBlock( block ) && block.attributes.ref === id );
 	const associatedBlockClientIds = associatedBlocks.map( ( block ) => block.clientId );
 
@@ -187,10 +181,10 @@ export const deleteReusableBlocks = async ( action, store ) => {
 	} );
 
 	// Remove the parsed block.
-	dispatch( removeBlocks( [
+	dataDispatch( 'core/block-editor' ).removeBlocks( [
 		...associatedBlockClientIds,
 		reusableBlock.clientId,
-	] ) );
+	] );
 
 	try {
 		await apiFetch( {
@@ -222,10 +216,9 @@ export const deleteReusableBlocks = async ( action, store ) => {
  * Receive Reusable Blocks Effect Handler.
  *
  * @param {Object} action  action object.
- * @return {Object} receive blocks action
  */
 export const receiveReusableBlocks = ( action ) => {
-	return receiveBlocks( map( action.results, 'parsedBlock' ) );
+	dataDispatch( 'core/block-editor' ).receiveBlocks( map( action.results, 'parsedBlock' ) );
 };
 
 /**
@@ -236,16 +229,16 @@ export const receiveReusableBlocks = ( action ) => {
  */
 export const convertBlockToStatic = ( action, store ) => {
 	const state = store.getState();
-	const oldBlock = getBlock( state, action.clientId );
+	const oldBlock = select( 'core/block-editor' ).getBlock( action.clientId );
 	const reusableBlock = getReusableBlock( state, oldBlock.attributes.ref );
-	const referencedBlock = getBlock( state, reusableBlock.clientId );
+	const referencedBlock = select( 'core/block-editor' ).getBlock( reusableBlock.clientId );
 	let newBlocks;
 	if ( referencedBlock.name === 'core/template' ) {
 		newBlocks = referencedBlock.innerBlocks.map( ( innerBlock ) => cloneBlock( innerBlock ) );
 	} else {
 		newBlocks = [ cloneBlock( referencedBlock ) ];
 	}
-	store.dispatch( replaceBlocks( oldBlock.clientId, newBlocks ) );
+	dataDispatch( 'core/block-editor' ).replaceBlocks( oldBlock.clientId, newBlocks );
 };
 
 /**
@@ -255,20 +248,20 @@ export const convertBlockToStatic = ( action, store ) => {
  * @param {Object} store   Redux Store.
  */
 export const convertBlockToReusable = ( action, store ) => {
-	const { getState, dispatch } = store;
+	const { dispatch } = store;
 	let parsedBlock;
 	if ( action.clientIds.length === 1 ) {
-		parsedBlock = getBlock( getState(), action.clientIds[ 0 ] );
+		parsedBlock = select( 'core/block-editor' ).getBlock( action.clientIds[ 0 ] );
 	} else {
 		parsedBlock = createBlock(
 			'core/template',
 			{},
-			getBlocksByClientId( getState(), action.clientIds )
+			select( 'core/block-editor' ).getBlocksByClientId( action.clientIds )
 		);
 
 		// This shouldn't be necessary but at the moment
 		// we expect the content of the shared blocks to live in the blocks state.
-		dispatch( receiveBlocks( [ parsedBlock ] ) );
+		dataDispatch( 'core/block-editor' ).receiveBlocks( [ parsedBlock ] );
 	}
 
 	const reusableBlock = {
@@ -284,13 +277,13 @@ export const convertBlockToReusable = ( action, store ) => {
 
 	dispatch( saveReusableBlock( reusableBlock.id ) );
 
-	dispatch( replaceBlocks(
+	dataDispatch( 'core/block-editor' ).replaceBlocks(
 		action.clientIds,
 		createBlock( 'core/block', {
 			ref: reusableBlock.id,
 		} )
-	) );
+	);
 
 	// Re-add the original block to the store, since replaceBlock() will have removed it
-	dispatch( receiveBlocks( [ parsedBlock ] ) );
+	dataDispatch( 'core/block-editor' ).receiveBlocks( [ parsedBlock ] );
 };
