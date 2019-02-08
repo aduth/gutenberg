@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { default as triggerFetch } from '@wordpress/api-fetch';
-import { select as selectData, dispatch as dispatchData } from '@wordpress/data';
+import { createRegistryControl } from '@wordpress/data';
 
 export function apiFetch( request ) {
 	return {
@@ -33,10 +33,14 @@ export default {
 	API_FETCH( { request } ) {
 		return triggerFetch( request );
 	},
-	SELECT( { reducerKey, selectorName, args } ) {
-		return selectData( reducerKey )[ selectorName ]( ...args );
-	},
-	DISPATCH( { reducerKey, actionName, args } ) {
-		return dispatchData( reducerKey )[ actionName ]( ...args );
-	},
+	SELECT: createRegistryControl(
+		( registry ) => ( { reducerKey, selectorName, args } ) => {
+			return registry.select( reducerKey )[ selectorName ]( ...args );
+		}
+	),
+	DISPATCH: createRegistryControl(
+		( registry ) => ( { reducerKey, actionName, args } ) => {
+			return registry.dispatch( reducerKey )[ actionName ]( ...args );
+		}
+	),
 };
