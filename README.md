@@ -4,6 +4,8 @@
 
 ![Screenshot of the Gutenberg Editor, editing a post in WordPress](https://cldup.com/H0oKBfpidk.png)
 
+This is a test.
+
 This repo is the development hub for the <a href="https://make.wordpress.org/core/2017/01/04/focus-tech-and-design-leads/">editor focus in WordPress Core</a>. `Gutenberg` is the project name.
 
 ## Getting started
